@@ -1,140 +1,167 @@
 <?php
-
-session_start();
-
-require_once ("CreateDb.php");
-require_once ("component.php");
-
-$db = new CreateDb("prjweb3", "produit");
-/*con cart to db */
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['action'] == 'buy') {
-    if (isset($_SESSION['id']) && isset($_SESSION['cart'])) {
-        $userId = $_SESSION['id'];
-        $products = $_SESSION['cart'];
-        $total = array_reduce($products, function($sum, $item) use ($db) {
-            $result = $db->getDataById($item['id']);
-            $product = mysqli_fetch_assoc($result);
-            return $sum + $product['price'];
-        }, 0);
-    
-
-        $insertResult = $db->insertOrder($userId, $products, $total);
-        
-        if ($insertResult) {
-            unset($_SESSION['cart']); // Clear the cart after successful order
-            echo "<script>alert('Order placed successfully!');</script>";
-            echo "<script>window.location = 'cart.php'</script>";
-        } else {
-            echo "<script>alert('Failed to place the order.');</script>";
-        }
-    }
-}
-/*end con cart */
-if (isset($_POST['remove'])){
-  if ($_GET['action'] == 'remove'){
-      foreach ($_SESSION['cart'] as $key => $value){
-          if($value["product_id"] == $_GET['id']){
-              unset($_SESSION['cart'][$key]);
-              echo "<script>alert('Product has been Removed...!')</script>";
-              echo "<script>window.location = 'cart.php'</script>";
-              
-          }
-          
-      }
-      
-  }
-}
-
-
+  session_start();
 ?>
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cart</title>
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.css" />
-
-    <!-- Bootstrap CDN -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="author" content="Sahil Kumar">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Cart</title>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css' />
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css' />
 </head>
-<body class="bg-light">
 
-<?php
-    require_once ('header.php');
-?>
-
-<div class="container-fluid">
-    <div class="row px-5">
-        <div class="col-md-7">
-            <div class="shopping-cart">
-                <h6>My Cart</h6>
-                <hr>
-
-                <?php
-
-                $total = 0;
-                    if (isset($_SESSION['cart'])){
-                        $product_id = array_column($_SESSION['cart'], 'product_id');
-
-                        $result = $db->getData();
-                        while ($row = mysqli_fetch_assoc($result)){
-                            foreach ($product_id as $id){
-                                if ($row['id'] == $id){
-                                    cartElement($row['product_image'], $row['nom'],$row['price'], $row['id']);
-                                    $total = $total + (int)$row['price'];
-                                }
-                            }
-                        }
-                    }else{
-                        echo "<h5>Cart is Empty</h5>";
-                    }
-
-                ?>
-
-            </div>
-        </div>
-        <div class="col-md-4 offset-md-1 border rounded mt-5 bg-white h-25">
-
-            <div class="pt-4">
-                <h6>PRICE DETAILS</h6>
-                <hr>
-                <div class="row price-details">
-                    <div class="col-md-6">
-                        <?php
-                            if (isset($_SESSION['cart'])){
-                                $count  = count($_SESSION['cart']);
-                                echo "<h6>Price ($count items)</h6>";
-                            }else{
-                                echo "<h6>Price (0 items)</h6>";
-                            }
-                        ?>
-                        <h6>Delivery Charges</h6>
-                        <hr>
-                        <h6>Amount Payable</h6>
-                    </div>
-                    <div class="col-md-6">
-                        <h6>$<?php echo $total; ?></h6>
-                        <h6 class="text-success">FREE</h6>
-                        <hr>
-                        <h6>$<?php
-                            echo $total;
-                            ?></h6>
-                            <form method="post" action="CreateDb.php">
-    <input type="hidden" name="action" value="buy">
-    <button type="submit" class="btn btn-success">Buy</button>
-</form>
-                    </div>
-                </div>
-            </div>
-
-        </div>
+<body>
+  <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+    <!-- Brand -->
+    <a class="navbar-brand" href="index.php"><i class="fas fa-mobile-alt"></i>&nbsp;&nbsp;Mobile Store</a>
+    <!-- Toggler/collapsibe Button -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- Navbar links -->
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="index.php"><i class="fas fa-mobile-alt mr-2"></i>Products</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#"><i class="fas fa-th-list mr-2"></i>Categories</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="checkout.php"><i class="fas fa-money-check-alt mr-2"></i>Checkout</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="cart.php"><i class="fas fa-shopping-cart"></i> <span id="cart-item" class="badge badge-danger"></span></a>
+        </li>
+      </ul>
     </div>
-</div>
+  </nav>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!--alert-->
+        <div stytle="display:none <?php if(isset($SESSION['showAlert'])){echo $_SESSION['showAlert'];} else{echo'none';} unset($_SESSION['showAlert']);?>" class="alert alert-success alert-dismissible mt3">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+       <strong><?php if(isset($SESSION['message'])){echo $_SESSION['message'];}  unset($_SESSION['showAlert']);?></strong>
+        </div>
+        <div class="table-responsive mt-2">
+          <table class="table table-bordered table-striped text-center">
+            <thead>
+              <tr>
+                <td colspan="7">
+                  <h4 class="text-center text-info m-0">Products in your cart!</h4>
+                </td>
+              </tr>
+              <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>
+                  <a href="action.php?clear=all" class="badge-danger badge p-1" onclick="return confirm('Are you sure want to clear your cart?');"><i class="fas fa-trash"></i>&nbsp;&nbsp;Clear Cart</a>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+                require 'config.php';
+                $stmt = $conn->prepare('SELECT * FROM product');
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $grand_total = 0;
+                while ($row = $result->fetch_assoc()):
+              ?>
+              <tr>
+                <td><?= $row['id'] ?></td>
+                <input type="hidden" class="pid" value="<?= $row['id'] ?>">
+                <td><img src="<?= $row['product_image'] ?>" width="50"></td>
+                <td><?= $row['product_name'] ?></td>
+                <td>
+                  <i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;<?= number_format($row['product_price'],2); ?>
+                </td>
+                <input type="hidden" class="pprice" value="<?= $row['product_price'] ?>">
+                <td>
+                  <input type="number" class="form-control itemQty" value="<?= $row['product_qty'] ?>" style="width:75px;">
+                </td>
+                <td><i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;<?= number_format($row['product_price'],2); ?></td>
+                <td>
+                  <a href="action.php?remove=<?= $row['id'] ?>" class="text-danger lead" onclick="return confirm('Are you sure want to remove this item?');"><i class="fas fa-trash-alt"></i></a>
+                </td>
+              </tr>
+              <?php $grand_total += $row['product_price']; ?>
+              <?php endwhile; ?>
+              <tr>
+                <td colspan="3">
+                  <a href="index.php" class="btn btn-success"><i class="fas fa-cart-plus"></i>&nbsp;&nbsp;Continue
+                    Shopping</a>
+                </td>
+                <td colspan="2"><b>Grand Total</b></td>
+                <td><b><i class="fas fa-dollar-sign"></i>&nbsp;&nbsp;<?= number_format($grand_total,2); ?></b></td>
+                <td>
+                  <a href="checkout.php" class="btn btn-info <?= ($grand_total > 1) ? '' : 'disabled'; ?>"><i class="far fa-credit-card"></i>&nbsp;&nbsp;Checkout</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js'></script>
+
+  <script type="text/javascript">
+  $(document).ready(function() {
+
+    // Change the item quantity
+    $(".itemQty").on('change', function() {
+      var $el = $(this).closest('tr');
+
+      var pid = $el.find(".pid").val();
+      var pprice = $el.find(".pprice").val();
+      var qty = $el.find(".itemQty").val();
+      location.reload(true);
+      $.ajax({
+        url: 'action.php',
+        method: 'post',
+        cache: false,
+        data: {
+          qty: qty,
+          pid: pid,
+          pprice: pprice
+        },
+        success: function(response) {
+          console.log(response);
+        }
+      });
+    });
+
+    // Load total no.of items added in the cart and display in the navbar
+    load_cart_item_number();
+
+    function load_cart_item_number() {
+      $.ajax({
+        url: 'action.php',
+        method: 'get',
+        data: {
+          cartItem: "cart_item"
+        },
+        success: function(response) {
+          $("#cart-item").html(response);
+        }
+      });
+    }
+  });
+  </script>
+</body>
+
+</html>

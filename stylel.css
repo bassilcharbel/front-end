@@ -238,4 +238,138 @@ body{
     color:#EEEE;
     padding:15px;
 }
+/* log in*/
+.show-btn{
+    background-color:#DC5F00;
+    padding:10px 20px;
+    font-size :20px;
+    font-weight:500;
+    color:#fff;
+    cursor:pointer;
+    box-shadow : 0px 0px 10px rgba(0,0,0,0.1);
 
+}
+.show-btn .contain-er{
+    position: absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50% ,-50%);
+
+}
+input[type="checkbox"]{
+    display:none;
+}
+.contain-er{
+    display:none;
+    background:#EEEEEE;
+    width:350px;
+    height:auto;
+    padding:30px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+
+}
+#show:checked ~ .contain-er{
+    display:block;
+
+}
+.contain-er .close-btn{
+    position: absolute;
+    right:20px;
+    top:15px;
+    font-size:19px;
+    cursor:pointer;
+
+}
+.contain-er .close-btn:hover{
+    color:#000000;
+}
+.container .text{
+    font-size:35px;
+    font-weight:600;
+    text-align:center;
+
+}
+.contain-er form{
+    margin-top:-20px;
+}
+/*.contain-er form .data{
+    height:45%;
+    width:100%;
+    margin:40px 0;
+}
+form .data input{
+    height:100%;
+    width:100%;
+    padding-left: 10px;
+    font-size:17%;
+    border: 1px solid silver;
+    font-weight: bold;
+
+}*/
+form .data input:focus{
+    border-color:#DC5F00;
+    border-bottom-width:2px;
+}
+form .forgot-pass {
+    margin-top:-8px;
+
+}
+form .fogot-pass a{
+    color:#DC5F00;
+    text-decoration:none;
+
+}
+form .forgot-pass a:hover{
+    text-decoration: underline;
+
+}
+form.btn{
+    margin:30px 0;
+    height:45px;
+    width:100%;
+    position:relative;
+    overflow:hidden;
+
+}
+form .btn .inner{
+    height:100%;
+    width:100%;
+    position:absolute;
+    left:-100%;
+    z-index:-1;
+    background: linear-gradient(to right,#014d6f 10%,#2b8);
+    transition:all 0.4s;
+
+}
+form .btn:hover .inner{
+    left:0;
+}
+form .btn button{
+    height:100%;
+    width:300%;
+    background:none;
+    color:#EEEEEE;
+    font-size:18px;
+    font-weight:500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor:pointer;
+
+}
+form .signup-link {
+    text-align:center;
+
+}
+form .signup-link a{
+    color:#000000;
+    text-decoration: none;
+
+}
+form.signup-link a:hover{
+    text-decoration: underline;
+
+}
+.nav-item{
+    overflow: hidden;
+}
